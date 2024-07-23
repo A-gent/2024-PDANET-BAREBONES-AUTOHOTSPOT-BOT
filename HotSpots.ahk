@@ -6,7 +6,6 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 #Persistent
 
 
-
 ;                         {[
 ;;           ELEVATE TO ADMIN UAC PROMPT BELOW
 ; If the script is not elevated, relaunch as administrator and kill current instance:
@@ -26,6 +25,9 @@ if not (A_IsAdmin or RegExMatch(full_command_line, " /restart(?!\S)"))
 }
 ;
 ;                          ]}
+
+DetectHiddenText, On
+DetectHiddenWindows, On
 
 
 GLOBAL ConfigFileTitle := "hotspot.cfg" ;; remove the X on the end!
@@ -120,6 +122,9 @@ GLOBAL HotspotSwitch := MainHotspotSwitch
 IniRead, MainDoubleCleanupSwitch, %config_path%, SWITCHES, DoubleCleanupPass, 1
 GLOBAL DoubleCleanupSwitch := MainDoubleCleanupSwitch
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+IniRead, DismissPDAMessages, %config_path%, PDANET, DismissPdaMessages, 1
+GLOBAL DismissMessages := DismissPDAMessages
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -134,6 +139,9 @@ GLOBAL AutoDHCP := aAutoDHCP
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 IniRead, aAdapterDHCPbat, %config_path%, CONFIG, HotspotAdapterDHCPbat, set-DHCP.bat
 GLOBAL AdapterDHCPbat := aAdapterDHCPbat
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+IniRead, aDismissMessageSpeed, %config_path%, PDANET, DismissMessageSpeed, 600000 ;; 600000 MS = 10 minutes
+GLOBAL DismissMessageSpeed := aDismissMessageSpeed
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 IniRead, aAutoConnect, %config_path%, SWITCHES, AutoConnect, 1
 GLOBAL AutoConnect := aAutoConnect
@@ -200,6 +208,12 @@ If(AutoConnect="1")
 {
     SetTimer, DetermineInternetConnectivity, %AutoConnectSpeed%
     SetTimer, DeleteDownloadTest, %DeleteDownloadTestSpeed%
+}
+
+If(DismissMessages="1")
+{
+    SetTimer, DismissPDAerrors, %DismissMessageSpeed%
+    ;; DEFAULT 600000 MS = 10 minutes
 }
 
 
@@ -500,6 +514,37 @@ If(DevDebugger="1")
 Return
 
 
+DismissPDAerrors:
+IniRead, DismissPDAMessages, %config_path%, PDANET, DismissPdaMessages, 1
+GLOBAL DismissMessages := DismissPDAMessages
+IniRead, aDismissMessageSpeed, %config_path%, PDANET, DismissMessageSpeed, 600000 ;; 600000 MS = 10 minutes
+GLOBAL DismissMessageSpeed := aDismissMessageSpeed
+If(DismissMessages="1")
+{
+    WinClose, %PDANETerror%
+    WinClose, %PDANETerror%
+    WinClose, %PDANETerror%
+    WinClose, %PDANETerror%
+    WinClose, %PDANETerror%
+    WinClose, %PDANETerror%
+    WinClose, %PDANETerror%
+    WinClose, %PDANETerror%
+    WinClose, %PDANETerror%
+    WinClose, %PDANETerror%
+    WinClose, %PDANETerror%
+    WinClose, %PDANETerror%
+    WinClose, %PDANETerror%
+    WinClose, %PDANETerror%
+    WinClose, %PDANETerror%
+}
+Else
+{
+        SetTimer, DismissPDAerrors, Off
+        ;; DEFAULT 600000 MS = 10 minutes
+}
+Return
+
+
 ; Return
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -512,7 +557,11 @@ Return
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 
